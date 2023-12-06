@@ -18,4 +18,8 @@ function chunks(arr, n) {
   return result;
 }
 
-export { getData, chunks };
+function zip(a, b) {
+  return a.map((k, i) => [k, b[i]]);
+}
+
+export { getData, chunks, zip };
