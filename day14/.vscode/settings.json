@@ -1,0 +1,6 @@
+{
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "debug.autoExpandLazyVariables": true,
+    "debug.console.collapseIdenticalLines": false
+}
