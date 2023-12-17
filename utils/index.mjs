@@ -22,4 +22,18 @@ function zip(a, b) {
   return a.map((k, i) => [k, b[i]]);
 }
 
-export { getData, chunks, zip };
+function transpose(matrix) {
+  return matrix[0].map((col, i) => matrix.map((row) => row[i]));
+}
+
+function isEq(a, b) {
+  if (a === null || (b === null && a !== b)) return true;
+  if (typeof a !== "object" || typeof b !== "object") return a === b;
+  if (Object.keys(a).length !== Object.keys(b).length) return false;
+  for (let k of Object.keys(a)) {
+    if (!b.hasOwnProperty(k) || !isEq(a[k], b[k])) return false;
+  }
+  return true;
+}
+
+export { getData, chunks, zip, transpose, isEq };
