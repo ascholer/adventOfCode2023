@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from "fs";
 
 function getData(filename) {
   try {
@@ -36,4 +36,13 @@ function isEq(a, b) {
   return true;
 }
 
-export { getData, chunks, zip, transpose, isEq };
+//Thanks SO... https://stackoverflow.com/questions/68371293/how-can-i-find-the-gcd-of-two-or-more-integers-javascript-no-methods
+const gcd = (a, b) => (b == 0 ? a : gcd(b, a % b));
+const gcdAll = (n, ...ns) => (ns.length == 0 ? n : gcd(n, gcdAll(...ns)));
+
+function lcm(nums) {
+  let d = gcdAll(...nums);
+  return d * nums.reduce((a, b) => a * (b / d), 1);
+}
+
+export { getData, chunks, zip, transpose, isEq, gcd, gcdAll, lcm };
