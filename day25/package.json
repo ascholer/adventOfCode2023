@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "graphviz": "^0.0.9",
+    "mathjs": "^12.2.1",
+    "utils": "file:../utils"
+  }
+}
