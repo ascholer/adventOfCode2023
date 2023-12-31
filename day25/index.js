@@ -1,10 +1,5 @@
 import { getData } from "utils";
 
-import { create, all } from "mathjs";
-
-const config = {};
-const math = create(all, config);
-
 class ConnectMap {
   constructor() {
     this.cons = new Map();
@@ -40,6 +35,44 @@ function groupCount(conns, ignored) {
   return [group, cmap];
 }
 
+function shuffle(array) {
+  let currentIndex = array.length,
+    randomIndex;
+
+  while (currentIndex > 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex],
+      array[currentIndex],
+    ];
+  }
+
+  return array;
+}
+
+function bfs(conns, start) {
+  let parents = new Map();
+  let visited = new Set();
+  let queue = [start];
+  let last = start;
+  while (queue.length > 0) {
+    let cur = queue.shift();
+    let neighbors = [...conns.cons.get(cur)];
+    //need to avoid always using same edges...
+    neighbors = shuffle(neighbors);
+    neighbors.forEach((n) => {
+      if (!visited.has(n)) {
+        parents.set(n, cur);
+        queue.push(n);
+        visited.add(n);
+        last = n;
+      }
+    });
+  }
+  return [last, parents];
+}
+
 function part1() {
   const lines = getData("data.txt").split("\n");
   let connections = new ConnectMap();
@@ -53,40 +86,48 @@ function part1() {
       }
     }
   }
+
   let nodes = [...connections.cons.keys()];
   let nodeNums = new Map();
   nodes.forEach((n, i) => {
     nodeNums.set(n, i);
   });
 
-  let adjMatrix = [];
-  for (let n of nodes) {
-    let adj = nodes.map((n2) => {
-      if (connections.cons.get(n).has(n2)) return 1;
-      return 0;
-    });
-    adjMatrix.push(adj);
+  //figure out which edges are required for longest paths from random nodes
+  const trials = 10000;
+  let requireCounts = new Map();
+  for (let i = 0; i < trials; i++) {
+    let used = new Set();
+    let n1 = nodes[Math.floor(Math.random() * nodes.length)];
+    let [end, parents] = bfs(connections, n1);
+    let cur = end;
+    while (cur !== n1) {
+      let dest = parents.get(cur);
+      let edge = `${cur}-${dest}`;
+      let edge2 = `${dest}-${cur}`;
+      used.add(edge);
+      used.add(edge2);
+      cur = dest;
+    }
+    for (let e of used) {
+      if (!requireCounts.has(e)) requireCounts.set(e, 0);
+      requireCounts.set(e, requireCounts.get(e) + 1);
+    }
   }
 
-  //let mm = math.pow(adjMatrix, 2);
+  requireCounts = [...requireCounts];
+  requireCounts.sort((a, b) => {
+    return b[1] - a[1];
+  });
 
-  // let counts = [...connections.cons].map((c) => {
-  //   return [c[0], c[1].size];
-  // });
-
-  let edgeList = new Array(...edgeSet);
-  // edgeList = edgeList.filter((e) => {
-  //   let nodes = e.split("-");
-  //   let n0num = nodeNums.get(nodes[0]);
-  //   let n1num = nodeNums.get(nodes[1]);
-  //   return mm[n0num][n1num] === 0;
-  // });
-  for (let i = 0; i < edgeList.length; i++) {
-    console.log(i);
-    for (let j = i + 1; j < edgeList.length; j++) {
-      console.log(i, j);
-      for (let k = j + 1; k < edgeList.length; k++) {
-        let ignoredEdges = new Set([edgeList[i], edgeList[j], edgeList[k]]);
+  for (let i = 0; i < requireCounts.length; i += 2) {
+    for (let j = i + 2; j < requireCounts.length; j += 2) {
+      for (let k = j + 2; k < requireCounts.length; k += 2) {
+        let ignoredEdges = new Set([
+          requireCounts[i][0],
+          requireCounts[j][0],
+          requireCounts[k][0],
+        ]);
         let [groups, colorMap] = groupCount(connections, ignoredEdges);
         if (groups === 2) {
           console.log(groups, ignoredEdges);
@@ -99,18 +140,6 @@ function part1() {
       }
     }
   }
-  //groupCount(connections);
-
-  let sum = 0;
-
-  console.log(sum);
-}
-
-function part2() {
-  let sum = 0;
-
-  console.log(sum);
 }
 
 part1();
-part2();
